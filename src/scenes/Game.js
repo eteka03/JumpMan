@@ -1,6 +1,10 @@
 import Phaser from '../lib/phaser.js'
 
 export default class Game extends Phaser.Scene{
+
+    /** @type {Phaser.Physics.Arcade.Sprite} */
+    player
+
     constructor(){
         super('game')
     }
@@ -9,13 +13,15 @@ export default class Game extends Phaser.Scene{
     preload(){
 
         this.load.image('background','assets/images/bg_layer1.png')
-
         this.load.image('platform','assets/images/ground_grass.png')
+        this.load.image('bunny-stand','assets/images/bunny1_stand.png')
+
     }
 
     create(){
         this.add.image(240,320,'background')
-        //create the group
+
+        //create the group of platforms
         const platforms =  this.physics.add.staticGroup()
         let i = 0
         while (i !== 5) {
@@ -32,8 +38,17 @@ export default class Game extends Phaser.Scene{
 
             i += 1
                 }
+
+        //create bunny
+        this.player = this.physics.add.sprite(240,320,'bunny-stand')
+        this.player.setScale(.5)
         
+        //for collision 
+        this.physics.add.collider(platforms,this.player)
         
+    }
+
+    update(){
 
     }
 }

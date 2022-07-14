@@ -45,10 +45,22 @@ export default class Game extends Phaser.Scene{
         
         //for collision 
         this.physics.add.collider(platforms,this.player)
+        this.player.body.checkCollision.left = false
+        this.player.body.checkCollision.right = false
+        this.player.body.checkCollision.up = false
         
+        this.cameras.main.startFollow(this.player)
+
     }
 
     update(){
+        // find out from Arcade Physics if the player's physics body
+        // is touching something below it
+        const touchingDown = this.player.body.touching.down
 
+        if(touchingDown){
+            //jump straight up
+            this.player.setVelocityY(-200)
+        }
     }
 }

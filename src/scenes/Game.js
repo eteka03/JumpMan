@@ -5,6 +5,9 @@ export default class Game extends Phaser.Scene{
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
 
+    /** @type {Phaser.Physics.Arcade.StaticGroup} */
+    platforms
+
     constructor(){
         super('game')
     }
@@ -20,16 +23,17 @@ export default class Game extends Phaser.Scene{
 
     create(){
         this.add.image(240,320,'background')
+                .setScrollFactor(1, 0)
 
         //create the group of platforms
-        const platforms =  this.physics.add.staticGroup()
+        this.platforms =  this.physics.add.staticGroup()
         let i = 0
         while (i !== 5) {
             const x = Phaser.Math.Between(80 ,400)
             const y = 150 * i
 
             /** @type {Phaser.Physics.Arcade.Sprite} */
-            const platform = platforms.create(x, y, 'platform')
+            const platform = this.platforms.create(x, y, 'platform')
             platform.scale = 0.5
 
         /** @type {Phaser.Physics.Arcade.StaticBody} */
@@ -42,18 +46,32 @@ export default class Game extends Phaser.Scene{
         //create bunny
         this.player = this.physics.add.sprite(240,320,'bunny-stand')
         this.player.setScale(.5)
-        
+        this.cameras.main.startFollow(this.player)
         //for collision 
-        this.physics.add.collider(platforms,this.player)
+        this.physics.add.collider(this.platforms,this.player)
         this.player.body.checkCollision.left = false
         this.player.body.checkCollision.right = false
         this.player.body.checkCollision.up = false
         
-        this.cameras.main.startFollow(this.player)
+        
 
     }
 
     update(){
+
+        this.platforms.children.iterate(child => {
+            /** @type {Phaser.Physics.Arcade.Sprite} */
+            
+            const platform = child
+
+            const scrollY = this.cameras.main.scrollY
+
+            if(platform.y >= scrollY + 700){
+                console.log('yes')
+                platform.y = scrollY - Phaser.Math.Between(50, 100)
+                platform.body.updateFromGameObject()
+            }
+        })
         // find out from Arcade Physics if the player's physics body
         // is touching something below it
         const touchingDown = this.player.body.touching.down

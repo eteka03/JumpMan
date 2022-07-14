@@ -8,6 +8,9 @@ export default class Game extends Phaser.Scene{
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
     platforms
 
+    /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
+    cursors
+
     constructor(){
         super('game')
     }
@@ -18,6 +21,8 @@ export default class Game extends Phaser.Scene{
         this.load.image('background','assets/images/bg_layer1.png')
         this.load.image('platform','assets/images/ground_grass.png')
         this.load.image('bunny-stand','assets/images/bunny1_stand.png')
+
+        this.cursors = this.input.keyboard.createCursorKeys()
 
     }
 
@@ -46,14 +51,17 @@ export default class Game extends Phaser.Scene{
         //create bunny
         this.player = this.physics.add.sprite(240,320,'bunny-stand')
         this.player.setScale(.5)
-        this.cameras.main.startFollow(this.player)
+
         //for collision 
         this.physics.add.collider(this.platforms,this.player)
         this.player.body.checkCollision.left = false
         this.player.body.checkCollision.right = false
         this.player.body.checkCollision.up = false
         
-        
+        /* cameras */
+        this.cameras.main.startFollow(this.player)
+        // set the horizontal dead zone to 1.5x game width
+        this.cameras.main.setDeadzone(this.scale.width * 1.5)
 
     }
 
@@ -79,6 +87,16 @@ export default class Game extends Phaser.Scene{
         if(touchingDown){
             //jump straight up
             this.player.setVelocityY(-200)
+        }
+
+        //left and right
+        if(this.cursors.left.isDown && !touchingDown){
+            this.player.setVelocityX(-200)
+        }else if(this.cursors.right.isDown && !touchingDown){
+            this.player.setVelocityX(200)
+        }else{
+            //stop to move if no movement
+            this.player.setVelocityX(0)
         }
     }
 }

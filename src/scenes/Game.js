@@ -1,4 +1,5 @@
 import Phaser from '../lib/phaser.js'
+import Carrot from '../game/Carrot.js'
 
 export default class Game extends Phaser.Scene{
 
@@ -10,6 +11,8 @@ export default class Game extends Phaser.Scene{
 
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     cursors
+    /** @type {Phaser.Physics.Arcade.Group} */
+    carrots
 
     constructor(){
         super('game')
@@ -21,6 +24,7 @@ export default class Game extends Phaser.Scene{
         this.load.image('background','assets/images/bg_layer1.png')
         this.load.image('platform','assets/images/ground_grass.png')
         this.load.image('bunny-stand','assets/images/bunny1_stand.png')
+        this.load.image('carrot','assets/images/carrot.png')
 
         this.cursors = this.input.keyboard.createCursorKeys()
 
@@ -62,6 +66,10 @@ export default class Game extends Phaser.Scene{
         this.cameras.main.startFollow(this.player)
         // set the horizontal dead zone to 1.5x game width
         this.cameras.main.setDeadzone(this.scale.width * 1.5)
+
+        //create  carrots
+        this.carrots = this.physics.add.group({classType: Carrot})
+        this.carrots.get(240,320,'carrot')
 
     }
 

@@ -58,6 +58,7 @@ export default class Game extends Phaser.Scene{
 
         //for collision 
         this.physics.add.collider(this.platforms,this.player)
+
         this.player.body.checkCollision.left = false
         this.player.body.checkCollision.right = false
         this.player.body.checkCollision.up = false
@@ -69,7 +70,17 @@ export default class Game extends Phaser.Scene{
 
         //create  carrots
         this.carrots = this.physics.add.group({classType: Carrot})
-        this.carrots.get(240,320,'carrot')
+        
+        // add this collider
+        this.physics.add.collider(this.platforms, this.carrots)
+
+        this.physics.add.overlap(
+            this.player,
+            this.carrots,
+            this.handleCollectCarrot,
+            undefined,
+            this
+        )
 
     }
 
@@ -83,9 +94,11 @@ export default class Game extends Phaser.Scene{
             const scrollY = this.cameras.main.scrollY
 
             if(platform.y >= scrollY + 700){
-                console.log('yes')
                 platform.y = scrollY - Phaser.Math.Between(50, 100)
                 platform.body.updateFromGameObject()
+
+                // create a carrot above the platform being reused
+                this.addCarrotAbove(platform)
             }
         })
         // find out from Arcade Physics if the player's physics body
@@ -94,7 +107,7 @@ export default class Game extends Phaser.Scene{
 
         if(touchingDown){
             //jump straight up
-            this.player.setVelocityY(-200)
+            this.player.setVelocityY(-300)
         }
 
         //left and right
@@ -119,4 +132,33 @@ export default class Game extends Phaser.Scene{
             sprite.x = -halfWidth
         }
     }
+
+    /**
+     * @param {Phaser.GameObjects.Sprite} sprite
+     */
+     addCarrotAbove(sprite){
+        const y = sprite.y - sprite.displayHeight
+
+        /** @type {Phaser.Physics.Arcade.Sprite} */
+        const carrot = this.carrots.get(sprite.x, y, 'carrot')
+
+        this.add.existing(carrot)
+
+        // update the physics body size
+        carrot.body.setSize(carrot.width, carrot.height)
+
+        return carrot
+     }
+
+     /**
+      * @param {Phaser.Physics.Arcade.Sprite} player
+      * @param {Carrot} carrot
+      */
+     handleCollectCarrot(player,carrot){
+        // hide from display
+        this.carrots.killAndHide(carrot)
+
+        // disable from physics world
+        this.physics.world.disableBody(carrot.body)
+     }
 }
